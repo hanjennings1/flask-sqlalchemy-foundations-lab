@@ -20,7 +20,35 @@ def index():
     body = {'message': 'Flask SQLAlchemy Lab 1'}
     return make_response(body, 200)
 
-# Add views here
+
+# GET EARTHQUAKE BY ID ---
+@app.route('/earthquakes/<int:id>')  
+def earthquake_by_id(id):
+    quake = Earthquake.query.filter(Earthquake.id == id).first()
+
+    if quake:
+        body = quake.to_dict()
+        status = 200
+    else:
+        # error handling / error message:
+        body = {"message": f"Earthquake {id} not found."}
+        status = 404
+
+    return make_response(body, status)
+
+
+# GET EARTHQUAKES MATCHING A MIN MAGNITUDE VALUE ---
+@app.route('/earthquakes/magnitude/<float:magnitude>')  # <float:...> needs a decimal in the URL
+def earthquakes_by_magnitude(magnitude):
+    quakes = Earthquake.query.filter(Earthquake.magnitude >= magnitude).all()
+
+    body = {
+        "count": len(quakes),                               # displays number of matches
+        "quakes": [quake.to_dict() for quake in quakes],    # shows each match as a dictionary with its info
+    }
+
+    return make_response(body, 200) # always returns 200 -- even if none match, the request still works, just returns none
+
 
 
 if __name__ == '__main__':
